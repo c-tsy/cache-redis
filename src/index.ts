@@ -11,9 +11,9 @@ export default class CacheRedis {
             password: opt.password || "auth",
             db: opt.db || 0
         }
-        this.ins = new Redis(key);
         this.key = [key.password, key.port, key.password, key.db, key.host].join('');
-        links[this.key] = this.ins;
+        if (links[this.key]) { return links[this.key] }
+        return links[this.key] = this.ins = new Redis(key);
     }
     async get(key: string, dv: any) {
         return await this.ins.get(key) || dv;
