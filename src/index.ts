@@ -16,13 +16,40 @@ export default class CacheRedis {
         return links[this.key] = this.ins = new Redis(key);
     }
     async get(key: string, dv: any) {
-        return await this.ins.get(key) || dv;
+        let rs = await this.ins.get(key);
+        if ('string' == typeof rs) {
+            switch (rs.substr(0, 2)) {
+                case '0|':
+                    return Number(rs.substr(2))
+                case '1|':
+                    return rs.substr(2, 1) == '1'
+                    break;
+                case '2|':
+                    try {
+                        return JSON.parse(rs.substr(2))
+                    } catch (error) {
+
+                    }
+                    break;
+            }
+        }
+        return rs || dv
     }
     async set(key: string, val: any, exp: number = 0) {
-        if (exp) {
-            return await this.ins.set(key, val, 'EX', exp);
+        let ov = '';
+        if ('string' != typeof val) {
+            if ('number' == typeof val) {
+                ov = "0|" + val;
+            } else if ('boolean' == typeof val) {
+                ov = "1|" + val ? '1' : '0'
+            } else {
+                ov = "2|" + JSON.stringify(val);
+            }
         }
-        return await this.ins.set(key, val);
+        if (exp) {
+            return await this.ins.set(key, ov, 'EX', exp);
+        }
+        return await this.ins.set(key, ov);
     }
     async del(key: string) {
         return await this.ins.del(key);
