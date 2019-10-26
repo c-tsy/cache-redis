@@ -13,7 +13,7 @@ export default class CacheRedis {
         }
         this.key = [key.password, key.port, key.password, key.db, key.host].join('');
         if (links[this.key]) { return links[this.key] }
-        return links[this.key] = this.ins = new Redis(key);
+        return links[this.key] = this.ins = new Redis(key)
     }
     async get(key: string, dv: any) {
         let rs = await this.ins.get(key);
