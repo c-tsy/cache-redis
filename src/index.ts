@@ -36,7 +36,7 @@ export default class CacheRedis {
         return rs || dv
     }
     async set(key: string, val: any, exp: number = 0) {
-        let ov = '';
+        let ov = val;
         if ('string' != typeof val) {
             if ('number' == typeof val) {
                 ov = "0|" + val;
